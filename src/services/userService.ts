@@ -1,6 +1,4 @@
 import { db } from '../db'
-import { users } from '../db/schema'
-import { eq } from 'drizzle-orm'
 import type { User, UserPreferences } from '../types/User'
 import { v4 as uuid } from 'uuid'
 import { ValidationError, AuthorizationError, NotFoundError, AppError } from '../utils/errors'
@@ -35,30 +33,15 @@ export class UserService {
       this.validateEmail(email)
       this.validatePassword(password)
 
-      const existingUser = await db.select().from(users).where(eq(users.email, email)).get()
-      if (existingUser) {
-        throw new ValidationError('Email already registered')
-      }
-
-      const newUser = await db.insert(users).values({
-        id: uuid(),
-        email,
-        password, // TODO: Add password hashing in Phase 2B
-        createdAt: new Date(),
-        lastLogin: new Date(),
-        status: 'pending',
-        role: 'user',
-        profileName: null,
-        themePreference: 'light',
-        emailNotifications: false
-      }).returning().get()
-
-      const { password: _, ...userWithoutPassword } = newUser
-      return userWithoutPassword
+      const user = await db.query('register', {
+        method: 'POST',
+        body: JSON.stringify({ email, password })
+      })
+      return user
     } catch (error) {
       if (error instanceof AppError) throw error
       console.error('Registration error:', error)
-      throw new AppError('Failed to register user', 'DB_ERROR', 500)
+      throw new AppError('Failed to register user', 'API_ERROR', 500)
     }
   }
 
@@ -69,6 +52,7 @@ export class UserService {
 
     try {
       const user = await db.login(email, password)
+      this.currentUser = user
       return user
     } catch (error) {
       throw new AuthorizationError('Invalid credentials')
@@ -81,27 +65,16 @@ export class UserService {
         throw new AuthorizationError('Not authorized to update this profile')
       }
 
-      const updatedUser = await db.update(users)
-        .set({
-          profileName: data.name ?? null,
-          themePreference: data.preferences.theme ?? 'light',
-          emailNotifications: data.preferences.emailNotifications ?? false
-        })
-        .where(eq(users.id, userId))
-        .returning()
-        .get()
-
-      if (!updatedUser) {
-        throw new NotFoundError('User not found')
-      }
-
-      const { password: _, ...userWithoutPassword } = updatedUser
-      this.currentUser = userWithoutPassword
-      return userWithoutPassword
+      const user = await db.query(`users/${userId}/profile`, {
+        method: 'PUT',
+        body: JSON.stringify(data)
+      })
+      this.currentUser = user
+      return user
     } catch (error) {
       if (error instanceof AppError) throw error
       console.error('Profile update error:', error)
-      throw new AppError('Failed to update profile', 'DB_ERROR', 500)
+      throw new AppError('Failed to update profile', 'API_ERROR', 500)
     }
   }
 
@@ -111,18 +84,14 @@ export class UserService {
         throw new AuthorizationError('Only admins can update user status')
       }
 
-      const result = await db.update(users)
-        .set({ status })
-        .where(eq(users.id, userId))
-        .run()
-
-      if (!result) {
-        throw new NotFoundError('User not found')
-      }
+      await db.query(`users/${userId}/status`, {
+        method: 'PUT',
+        body: JSON.stringify({ status })
+      })
     } catch (error) {
       if (error instanceof AppError) throw error
       console.error('Status update error:', error)
-      throw new AppError('Failed to update user status', 'DB_ERROR', 500)
+      throw new AppError('Failed to update user status', 'API_ERROR', 500)
     }
   }
 
@@ -134,18 +103,14 @@ export class UserService {
         throw new AuthorizationError('Not authorized to reset this password')
       }
 
-      const result = await db.update(users)
-        .set({ password: newPassword }) // TODO: Add password hashing in Phase 2B
-        .where(eq(users.id, userId))
-        .run()
-
-      if (!result) {
-        throw new NotFoundError('User not found')
-      }
+      await db.query(`users/${userId}/password`, {
+        method: 'PUT',
+        body: JSON.stringify({ password: newPassword })
+      })
     } catch (error) {
       if (error instanceof AppError) throw error
       console.error('Password reset error:', error)
-      throw new AppError('Failed to reset password', 'DB_ERROR', 500)
+      throw new AppError('Failed to reset password', 'API_ERROR', 500)
     }
   }
 
@@ -158,15 +123,22 @@ export class UserService {
   }
 
   static async getAllUsers(): Promise<User[]> {
-    const allUsers = await db.select().from(users).all()
-    return allUsers.map(({ password: _, ...user }) => user)
+    try {
+      const users = await db.query('users')
+      return users
+    } catch (error) {
+      console.error('Failed to get users:', error)
+      throw new AppError('Failed to get users', 'API_ERROR', 500)
+    }
   }
 
   static async getPendingUsers(): Promise<User[]> {
-    const pendingUsers = await db.select()
-      .from(users)
-      .where(eq(users.status, 'pending'))
-      .all()
-    return pendingUsers.map(({ password: _, ...user }) => user)
+    try {
+      const users = await db.query('users/pending')
+      return users
+    } catch (error) {
+      console.error('Failed to get pending users:', error)
+      throw new AppError('Failed to get pending users', 'API_ERROR', 500)
+    }
   }
 } 
