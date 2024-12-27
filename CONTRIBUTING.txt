@@ -1,0 +1,57 @@
+# Contributing Guide
+
+## Getting Started
+
+Prerequisites
+- Node.js 18+
+- npm 9+
+- Git
+
+Setup
+1. Fork the repository
+2. Clone your fork:
+   git clone <your-fork-url>
+
+3. Install dependencies:
+   npm install
+
+4. Create a branch:
+   git checkout -b feature/your-feature
+
+## Development Guidelines
+
+Code Style
+- Use TypeScript
+- Follow existing patterns
+- Add JSDoc comments
+- Use meaningful names
+
+Testing
+- Write tests first
+- Run npm test
+- Maintain 80%+ coverage
+- Test error cases
+
+Git Workflow
+1. Create feature branch
+2. Make changes
+3. Write tests
+4. Update docs
+5. Submit PR
+
+Commit Messages
+Format: type(scope): message
+
+Types:
+- feat: New feature
+- fix: Bug fix
+- docs: Documentation
+- test: Testing
+- refactor: Code change
+- style: Formatting
+
+Pull Requests
+1. Update documentation
+2. Add tests
+3. Pass CI checks
+4. Request review 

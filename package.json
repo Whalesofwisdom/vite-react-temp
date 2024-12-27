@@ -1,0 +1,55 @@
+{
+  "name": "vite-react-fullstack-template",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A full-stack Vite + React + TypeScript template with Express backend and SQLite database",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "server": "tsx server/index.ts",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "db:generate": "drizzle-kit generate:sqlite",
+    "db:migrate": "tsx src/db/migrate.ts",
+    "test": "vitest",
+    "db:seed": "tsx src/db/seed.ts"
+  },
+  "keywords": [
+    "vite",
+    "react",
+    "typescript",
+    "template",
+    "fullstack",
+    "sqlite",
+    "express",
+    "drizzle-orm"
+  ],
+  "dependencies": {
+    "@types/react": "^18.2.55",
+    "@types/react-dom": "^18.2.19",
+    "@types/uuid": "^10.0.0",
+    "better-sqlite3": "^9.4.3",
+    "cors": "^2.8.5",
+    "drizzle-orm": "^0.29.4",
+    "express": "^4.21.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.28.0",
+    "uuid": "^11.0.3"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.9",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@vitejs/plugin-react": "^4.3.3",
+    "autoprefixer": "^10.4.20",
+    "drizzle-kit": "^0.20.14",
+    "eslint": "^9.13.0",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.15",
+    "tsx": "^4.7.1",
+    "typescript": "~5.3.3",
+    "vite": "^5.4.10"
+  }
+}

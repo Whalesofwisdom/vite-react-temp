@@ -1,0 +1,54 @@
+# Architecture Documentation
+
+## Overview
+This template implements a service-based architecture with clear separation of concerns.
+
+### Core Layers
+
+1. Database Layer
+   - SQLite with Drizzle ORM
+   - Type-safe schema definitions
+   - Migration management
+   - Query logging and monitoring
+
+2. Service Layer
+   - UserService: Authentication and profile management
+   - EntryService: Content management
+   - Error handling and validation
+   - Type-safe operations
+
+3. Utility Layer
+   - Logging system
+   - Performance monitoring
+   - Error handling
+   - Type definitions
+
+## Key Components
+
+Database (src/db)
+- Schema definitions
+- Migration management
+- Connection handling
+- Query logging
+
+Services (src/services)
+- UserService
+- EntryService
+- Future services follow same pattern
+
+Utils (src/utils)
+- Logger: Centralized logging
+- Errors: Custom error types
+- Performance: Operation monitoring
+
+## Testing Strategy
+- Unit tests for services
+- Integration tests for database
+- Test utilities and helpers
+- Automated test runs
+
+## Security Features
+- Input validation
+- Error handling
+- Access control
+- Performance monitoring 
